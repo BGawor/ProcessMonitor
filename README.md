@@ -29,7 +29,7 @@ Replace `<process_name>` with the name of the process you want to monitor, `<dur
 
 For example:
 
-python monitor_process.py chrome 60 5
+`python monitor_process.py chrome 60 5`
 
 This command will monitor the 'chrome' process for 60 seconds with a sampling interval of 5 seconds.
 
