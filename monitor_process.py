@@ -5,6 +5,7 @@ import csv
 import platform
 import psutil
 
+
 class ProcessMonitor(object):
     def __init__(self, process_name, duration, interval=5):
         self.process_name = process_name
@@ -27,7 +28,8 @@ class ProcessMonitor(object):
         output_file = os.path.join(output_directory, f"{self.process_name}.csv")
 
         with open(output_file, 'a', newline='') as csvfile:
-            fieldnames = ['Process Name', 'PID', 'CPU (%)', 'CPU (AVG%)', 'Memory (%)', 'Memory (AVG%)', 'Open File Descriptors']
+            fieldnames = ['Process Name', 'PID', 'CPU (%)', 'CPU (AVG%)', 'Memory (%)', 'Memory (AVG%)',
+                          'Open File Descriptors']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             # Check if the file is empty and write the header if needed
@@ -40,51 +42,51 @@ class ProcessMonitor(object):
             total_samples = 0
             last_memory_usage = 0
             memory_increased_each_sample = True
-            memory_spike_alert_level = 1.2
+            memory_spike_alert_level = 1.2  # Chosen value detects notable memory spikes of at least 20%.
             memory_spike_happened = False
-            succeded = True
+            succeeded = True
 
             while time.time() < end_time:
                 # Get all running processes
                 try:
                     process_found = False
                     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
-                            if self.process_name.lower() in proc.info['name'].lower():
-                                process_found = True
-                                current_memory_usage = proc.info['memory_percent']
-                                current_cpu_usage = proc.info['cpu_percent']
-                                process_name = proc.info['name']
-                                process_id = proc.info['pid']
-                                cpu_total += current_cpu_usage
-                                memory_total += current_memory_usage
-                                total_samples += 1
+                        if self.process_name.lower() in proc.info['name'].lower():
+                            process_found = True
+                            current_memory_usage = proc.info['memory_percent']
+                            current_cpu_usage = proc.info['cpu_percent']
+                            process_name = proc.info['name']
+                            process_id = proc.info['pid']
+                            cpu_total += current_cpu_usage
+                            memory_total += current_memory_usage
+                            total_samples += 1
 
-                                if (total_samples > 1):
-                                    if (last_memory_usage > current_memory_usage):
-                                        memory_increased_each_sample = False
-                                    if (current_memory_usage/last_memory_usage > memory_spike_alert_level):
-                                        memory_spike_happened = True
+                            if (total_samples > 1):
+                                if (last_memory_usage > current_memory_usage):
+                                    memory_increased_each_sample = False
+                                if (current_memory_usage / last_memory_usage > memory_spike_alert_level):
+                                    memory_spike_happened = True
 
-                                last_memory_usage = current_memory_usage
+                            last_memory_usage = current_memory_usage
 
-                                writer.writerow({
-                                    'Process Name': process_name,
-                                    'PID': process_id,
-                                    'CPU (%)': current_cpu_usage,
-                                    'CPU (AVG%)': round(cpu_total / total_samples, 2),
-                                    'Memory (%)': current_memory_usage,
-                                    'Memory (AVG%)': round(memory_total / total_samples, 2),
-                                    'Open File Descriptors': self.get_open_handles(proc)
-                                })
+                            writer.writerow({
+                                'Process Name': process_name,
+                                'PID': process_id,
+                                'CPU (%)': current_cpu_usage,
+                                'CPU (AVG%)': round(cpu_total / total_samples, 2),
+                                'Memory (%)': current_memory_usage,
+                                'Memory (AVG%)': round(memory_total / total_samples, 2),
+                                'Open File Descriptors': self.get_open_handles(proc)
+                            })
                     if not process_found:
                         raise psutil.NoSuchProcess(pid=process_id, name=process_name)
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     print('Process might have terminated or inaccessible due to permissions.')
-                    succeded = False
+                    succeeded = False
                     break
                 time.sleep(self.interval)
 
-        if succeded:
+        if succeeded:
             if memory_spike_happened:
                 print('Alert: Memory spikes happened.')
             if memory_increased_each_sample:
