@@ -11,7 +11,7 @@ The Process Monitor is a Python script designed to monitor specific processes ru
 
 Ensure you have Python 3.x installed on your system. To install the required libraries, run the following command:
 
-python install_dependencies.py
+`python install_dependencies.py`
 
 ## Usage
 
@@ -23,7 +23,7 @@ To use the Process Monitor script, follow these steps:
 
 3. **Execute the Script:** Run the script by entering the following command:
 
-python monitor_process.py <process_name> <duration_seconds> [<sampling_interval_seconds>]
+`python monitor_process.py <process_name> <duration_seconds> [<sampling_interval_seconds>]`
 
 Replace `<process_name>` with the name of the process you want to monitor, `<duration_seconds>` with the duration (in seconds) for monitoring, and `<sampling_interval_seconds>` (optional) with the interval between each sampling (default is 5 seconds if not specified).
 
